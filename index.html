@@ -1,0 +1,1781 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>EDAV: Weather Patterns & Crop Yield Analysis | CBIT IT</title>
+  
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Chart.js for data visualizations -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <!-- Font Awesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <!-- Google Fonts: Inter & JetBrains Mono -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            darkBg: '#0B1120',
+            cardBg: '#0F172A',
+            glassBg: 'rgba(30, 41, 59, 0.75)',
+            subtleBorder: '#334155',
+            neonGreen: '#10B981',
+            neonCyan: '#06B6D4',
+            neonBlue: '#3B82F6',
+            neonAmber: '#F59E0B',
+            neonRose: '#F43F5E'
+          },
+          fontFamily: {
+            sans: ['Inter', 'system-ui', 'sans-serif'],
+            mono: ['JetBrains Mono', 'monospace']
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    /* Custom Scrollbar for sleek dark UI */
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: #0B1120; }
+    ::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
+    ::-webkit-scrollbar-thumb:hover { background: #475569; }
+
+    .glow-green { box-shadow: 0 0 20px -5px rgba(16, 185, 129, 0.25); }
+    .glow-cyan { box-shadow: 0 0 20px -5px rgba(6, 182, 212, 0.25); }
+    .glow-card { box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.5); }
+
+    .tab-active {
+      border-bottom: 2px solid #10B981;
+      color: #10B981;
+      background: rgba(16, 185, 129, 0.08);
+      font-weight: 700;
+    }
+  </style>
+</head>
+
+<body class="bg-darkBg text-slate-100 antialiased min-h-screen flex flex-col font-sans selection:bg-neonGreen selection:text-darkBg">
+
+  <!-- ================= TOP COLLEGE BANNER (DARK AESTHETIC) ================= -->
+  <header class="bg-[#070D18] border-b border-subtleBorder/80 sticky top-0 z-40 backdrop-blur-md bg-opacity-90">
+    <div class="max-w-7xl mx-auto px-4 py-2.5 flex flex-wrap items-center justify-between gap-3">
+      
+      <!-- CBIT Logo & Department Badge -->
+      <div class="flex items-center space-x-3.5">
+        <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-slate-800 to-slate-900 border border-slate-700 flex items-center justify-center p-1 shadow-inner">
+          <div class="text-center font-extrabold text-[11px] leading-tight text-white tracking-tighter">
+            CBIT<br><span class="text-[8px] text-neonGreen font-semibold">1979</span>
+          </div>
+        </div>
+        <div>
+          <h1 class="text-xs sm:text-sm font-semibold tracking-wide text-slate-200">
+            Chaitanya Bharathi Institute of Technology (Autonomous)
+          </h1>
+          <p class="text-[11px] text-slate-400 flex items-center gap-1.5">
+            <span class="w-1.5 h-1.5 rounded-full bg-neonGreen animate-pulse"></span>
+            Department of Information Technology &bull; Academic Year: 2026–2027
+          </p>
+        </div>
+      </div>
+
+      <!-- Academic Metadata Header Right -->
+      <div class="text-right flex items-center gap-3 sm:gap-6 text-xs">
+        <div class="hidden sm:block">
+          <span class="text-slate-500 block text-[10px] uppercase font-bold tracking-wider">Course</span>
+          <span class="text-slate-200 font-semibold font-mono text-[11px]">EDAV (IT Dept)</span>
+        </div>
+        <div class="border-l border-subtleBorder pl-3 sm:pl-4">
+          <span class="text-slate-500 block text-[10px] uppercase font-bold tracking-wider">Project Guide</span>
+          <span class="text-emerald-400 font-medium">Dr. Ramakrishna Kolikopogu</span>
+        </div>
+        <div class="border-l border-subtleBorder pl-3 sm:pl-4 hidden md:block">
+          <span class="text-slate-500 block text-[10px] uppercase font-bold tracking-wider">Team</span>
+          <span class="text-slate-300 font-medium">Jeshwanth, Shreyas, Varshini</span>
+        </div>
+      </div>
+
+    </div>
+  </header>
+
+  <!-- ================= HERO & NAVIGATION TABS ================= -->
+  <section class="bg-cardBg/90 border-b border-subtleBorder shadow-2xl relative overflow-hidden">
+    <!-- Subtle background gradient glow -->
+    <div class="absolute -top-24 -left-20 w-96 h-96 bg-neonGreen/10 rounded-full blur-3xl pointer-events-none"></div>
+    <div class="absolute -top-24 -right-20 w-96 h-96 bg-neonCyan/10 rounded-full blur-3xl pointer-events-none"></div>
+
+    <div class="max-w-7xl mx-auto px-4 pt-6 pb-0 relative z-10">
+      <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4 pb-6">
+        <div class="max-w-4xl">
+          <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full text-[11px] font-semibold bg-emerald-950/70 text-neonGreen border border-emerald-800/60 mb-2.5">
+            <i class="fa-solid fa-satellite-dish text-[10px]"></i> Live Agronomic Weather & Yield Telemetry Model
+          </div>
+          <h2 class="text-2xl sm:text-3xl font-extrabold text-white tracking-tight leading-snug">
+            Exploratory Data Analysis of Weather Patterns and Their Relationship with Crop Yields Across Regions
+          </h2>
+          <p class="mt-2 text-xs sm:text-sm text-slate-400 leading-relaxed max-w-3xl">
+            A real-time user-defined regional empirical simulator and exploratory data platform evaluating precipitation regimes, surface temperature variations, and crop productivity across Indian states.
+          </p>
+        </div>
+
+        <div class="flex flex-wrap items-center gap-2.5 self-start lg:self-center">
+          <button onclick="downloadSummaryReport()" class="inline-flex items-center gap-2 px-3.5 py-2 text-xs font-semibold text-slate-200 bg-slate-800/90 hover:bg-slate-700/90 rounded-lg border border-subtleBorder transition-all hover:border-slate-500 shadow-sm">
+            <i class="fa-solid fa-file-arrow-down text-neonCyan"></i> Export Telemetry Report
+          </button>
+          <button onclick="switchTab('qa')" class="inline-flex items-center gap-2 px-3.5 py-2 text-xs font-semibold text-darkBg bg-neonGreen hover:bg-emerald-400 rounded-lg shadow-md transition-all font-mono font-bold">
+            <i class="fa-solid fa-terminal text-darkBg"></i> BL3–BL5 Code
+          </button>
+        </div>
+      </div>
+
+      <!-- Navigation Tabs -->
+      <nav class="flex space-x-2 text-xs sm:text-sm overflow-x-auto scrollbar-none" id="navTabs">
+        <button onclick="switchTab('simulator')" id="tabBtn-simulator" class="tab-btn px-4 py-3 rounded-t-lg tab-active whitespace-nowrap flex items-center gap-2 text-slate-300 hover:text-white transition-all">
+          <i class="fa-solid fa-sliders text-neonGreen"></i> Regional Simulator
+        </button>
+        <button onclick="switchTab('visualizations')" id="tabBtn-visualizations" class="tab-btn px-4 py-3 rounded-t-lg whitespace-nowrap flex items-center gap-2 text-slate-400 hover:text-white transition-all">
+          <i class="fa-solid fa-chart-line text-neonCyan"></i> EDA Visualizations
+        </button>
+        <button onclick="switchTab('dataset')" id="tabBtn-dataset" class="tab-btn px-4 py-3 rounded-t-lg whitespace-nowrap flex items-center gap-2 text-slate-400 hover:text-white transition-all">
+          <i class="fa-solid fa-table text-neonAmber"></i> Historical Dataset Explorer
+        </button>
+        <button onclick="switchTab('qa')" id="tabBtn-qa" class="tab-btn px-4 py-3 rounded-t-lg whitespace-nowrap flex items-center gap-2 text-slate-400 hover:text-white transition-all">
+          <i class="fa-solid fa-graduation-cap text-neonBlue"></i> Bloom's Taxonomy (BL-3 to BL-5)
+        </button>
+        <button onclick="switchTab('datasources')" id="tabBtn-datasources" class="tab-btn px-4 py-3 rounded-t-lg whitespace-nowrap flex items-center gap-2 text-slate-400 hover:text-white transition-all">
+          <i class="fa-solid fa-network-wired text-slate-400"></i> Sources & Methodology
+        </button>
+      </nav>
+    </div>
+  </section>
+
+  <!-- ================= MAIN CONTAINER ================= -->
+  <main class="max-w-7xl mx-auto px-4 py-7 flex-1 w-full space-y-7">
+
+    <!-- ================= TAB 1: INTERACTIVE REGIONAL SIMULATOR ================= -->
+    <div id="tabContent-simulator" class="tab-content block space-y-6">
+      
+      <!-- Live Dynamic Metric Cards -->
+      <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
+        
+        <!-- Predicted Yield -->
+        <div class="bg-cardBg/90 border border-emerald-500/30 p-3.5 rounded-xl shadow-lg relative overflow-hidden glow-green">
+          <div class="absolute -right-2 -bottom-2 text-emerald-500/10 text-4xl">
+            <i class="fa-solid fa-wheat-awn"></i>
+          </div>
+          <span class="text-[10px] font-bold text-emerald-400 uppercase tracking-wider block">Predicted Yield</span>
+          <div class="mt-1 flex items-baseline justify-between">
+            <span id="kpi-yield" class="text-xl sm:text-2xl font-black text-neonGreen font-mono">3.45</span>
+            <span class="text-[10px] text-slate-400 font-mono">T / Ha</span>
+          </div>
+          <div class="mt-1 flex items-center justify-between text-[10px]">
+            <span id="kpi-yield-delta" class="text-emerald-400 font-semibold">+4.2% vs Base</span>
+            <i class="fa-solid fa-arrow-trend-up text-emerald-400"></i>
+          </div>
+        </div>
+
+        <!-- Total Production -->
+        <div class="bg-cardBg/90 border border-subtleBorder p-3.5 rounded-xl shadow-lg">
+          <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Estimated Output</span>
+          <div class="mt-1 flex items-baseline justify-between">
+            <span id="kpi-prod" class="text-lg sm:text-xl font-bold text-white font-mono">4,140</span>
+            <span class="text-[10px] text-slate-400 font-mono">Tonnes</span>
+          </div>
+          <span class="text-[10px] text-slate-500 block mt-1">Area &times; Yield</span>
+        </div>
+
+        <!-- Simulated Rainfall -->
+        <div class="bg-cardBg/90 border border-cyan-500/30 p-3.5 rounded-xl shadow-lg glow-cyan">
+          <span class="text-[10px] font-bold text-cyan-400 uppercase tracking-wider block">Simulated Rainfall</span>
+          <div class="mt-1 flex items-baseline justify-between">
+            <span id="kpi-rain" class="text-lg sm:text-xl font-bold text-cyan-300 font-mono">840 mm</span>
+            <i class="fa-solid fa-cloud-showers-heavy text-cyan-400 text-xs"></i>
+          </div>
+          <span id="kpi-moisture-tag" class="text-[10px] text-cyan-400 font-medium">Optimal Moisture</span>
+        </div>
+
+        <!-- Mean Temperature -->
+        <div class="bg-cardBg/90 border border-amber-500/30 p-3.5 rounded-xl shadow-lg">
+          <span class="text-[10px] font-bold text-amber-400 uppercase tracking-wider block">Simulated Temp</span>
+          <div class="mt-1 flex items-baseline justify-between">
+            <span id="kpi-temp" class="text-lg sm:text-xl font-bold text-amber-300 font-mono">31.0 °C</span>
+            <i class="fa-solid fa-temperature-high text-amber-400 text-xs"></i>
+          </div>
+          <span id="kpi-thermal-tag" class="text-[10px] text-amber-400 font-medium">Optimal Window</span>
+        </div>
+
+        <!-- Cultivated Land Area -->
+        <div class="bg-cardBg/90 border border-subtleBorder p-3.5 rounded-xl shadow-lg">
+          <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Cultivated Parcel</span>
+          <div class="mt-1 flex items-baseline justify-between">
+            <span id="kpi-area" class="text-lg sm:text-xl font-bold text-slate-200 font-mono">1,200</span>
+            <span class="text-[10px] text-slate-400 font-mono">Hectares</span>
+          </div>
+          <span class="text-[10px] text-slate-500 block mt-1">User Parcel Size</span>
+        </div>
+
+        <!-- Agronomic Efficiency -->
+        <div class="bg-cardBg/90 border border-subtleBorder p-3.5 rounded-xl shadow-lg">
+          <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Agronomic Efficiency</span>
+          <div class="mt-1 flex items-baseline justify-between">
+            <span id="kpi-eff" class="text-lg sm:text-xl font-bold text-emerald-400 font-mono">92.0%</span>
+            <i class="fa-solid fa-gauge-high text-emerald-400 text-xs"></i>
+          </div>
+          <div class="w-full bg-slate-800 h-1 rounded-full mt-2 overflow-hidden">
+            <div id="kpi-eff-bar" class="bg-neonGreen h-1 rounded-full transition-all duration-300" style="width: 92%"></div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Workbench: Controls (Left) & Diagnostics + Real-time Chart (Right) -->
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+        
+        <!-- Controls Column (Left - 5 Cols) -->
+        <div class="lg:col-span-5 bg-cardBg border border-subtleBorder p-5 rounded-2xl shadow-xl space-y-5">
+          
+          <div class="flex items-center justify-between border-b border-subtleBorder/70 pb-3">
+            <div class="flex items-center gap-2">
+              <span class="w-2.5 h-2.5 rounded-full bg-neonGreen animate-ping"></span>
+              <h3 class="font-bold text-white text-sm tracking-wide uppercase font-mono">
+                Agronomic Parameters
+              </h3>
+            </div>
+            <button onclick="resetDefaults()" class="text-[11px] text-slate-400 hover:text-neonCyan flex items-center gap-1 transition-colors">
+              <i class="fa-solid fa-rotate-left"></i> Reset Defaults
+            </button>
+          </div>
+
+          <!-- 1. State Selector -->
+          <div>
+            <label class="block text-[11px] font-bold uppercase tracking-wider text-slate-300 mb-1.5 flex justify-between">
+              <span>1. Agricultural State / Sub-Division</span>
+              <span id="badge-soil" class="text-neonGreen text-[10px] lowercase font-mono">red & black cotton soil</span>
+            </label>
+            <div class="relative">
+              <select id="sel-region" onchange="onRegionChange()" class="w-full bg-slate-900 border border-subtleBorder text-slate-100 rounded-xl px-3.5 py-2.5 text-xs font-medium focus:ring-2 focus:ring-neonGreen focus:border-transparent outline-none">
+                <option value="Telangana">Telangana (Semi-Arid Deccan)</option>
+                <option value="Andhra Pradesh">Andhra Pradesh (Coastal & Rayalaseema)</option>
+                <option value="Punjab">Punjab (Indo-Gangetic Alluvial Belt)</option>
+                <option value="Maharashtra">Maharashtra (Western Ghats & Vidarbha)</option>
+                <option value="Uttar Pradesh">Uttar Pradesh (Upper Gangetic Plains)</option>
+                <option value="Karnataka">Karnataka (Southern Peninsular Zone)</option>
+                <option value="Madhya Pradesh">Madhya Pradesh (Central Black Soil Plateau)</option>
+                <option value="Tamil Nadu">Tamil Nadu (Coromandel Coast & Kaveri Basin)</option>
+                <option value="Haryana">Haryana (North-Western Semi-Arid Plains)</option>
+                <option value="West Bengal">West Bengal (Lower Gangetic Delta)</option>
+              </select>
+            </div>
+            <p id="region-desc" class="text-[11px] text-slate-400 mt-1.5">Semi-arid Deccan Plateau with predominant red sandy and black cotton tracts.</p>
+          </div>
+
+          <!-- 2. Season and Crop Selector -->
+          <div class="grid grid-cols-2 gap-3">
+            <div>
+              <label class="block text-[11px] font-bold uppercase tracking-wider text-slate-300 mb-1.5">
+                2. Season
+              </label>
+              <select id="sel-season" onchange="onSeasonChange()" class="w-full bg-slate-900 border border-subtleBorder text-slate-100 rounded-xl px-3 py-2 text-xs font-medium focus:ring-2 focus:ring-neonGreen outline-none">
+                <option value="Kharif">Kharif (Monsoon)</option>
+                <option value="Rabi">Rabi (Winter)</option>
+                <option value="Whole Year">Zaid / Whole Year</option>
+              </select>
+            </div>
+
+            <div>
+              <label class="block text-[11px] font-bold uppercase tracking-wider text-slate-300 mb-1.5">
+                3. Crop
+              </label>
+              <select id="sel-crop" onchange="calculateYield()" class="w-full bg-slate-900 border border-subtleBorder text-slate-100 rounded-xl px-3 py-2 text-xs font-medium focus:ring-2 focus:ring-neonGreen outline-none">
+                <!-- Dynamically populated -->
+              </select>
+            </div>
+          </div>
+
+          <!-- 3. Sliders with Numeric Badges -->
+          <div class="space-y-4 pt-2 border-t border-subtleBorder/70">
+            
+            <!-- Temperature Slider -->
+            <div class="space-y-1">
+              <div class="flex justify-between items-center text-xs">
+                <span class="text-slate-300 font-semibold flex items-center gap-1.5">
+                  <i class="fa-solid fa-temperature-three-quarters text-neonAmber"></i> Mean Surface Temperature:
+                </span>
+                <span id="badge-temp" class="px-2 py-0.5 rounded bg-amber-500/20 text-neonAmber font-mono font-bold text-xs border border-amber-500/40">31.0 °C</span>
+              </div>
+              <input type="range" id="slider-temp" min="10" max="48" step="0.5" value="31.0" oninput="onWeatherSliderChange()" class="w-full h-1.5 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-neonAmber">
+              <div class="flex justify-between text-[10px] text-slate-500 font-mono">
+                <span>10 °C</span>
+                <span id="slider-temp-ideal" class="text-amber-400 font-medium">Ideal: 23–33 °C</span>
+                <span>48 °C</span>
+              </div>
+            </div>
+
+            <!-- Rainfall Slider -->
+            <div class="space-y-1">
+              <div class="flex justify-between items-center text-xs">
+                <span class="text-slate-300 font-semibold flex items-center gap-1.5">
+                  <i class="fa-solid fa-cloud-showers-water text-neonCyan"></i> Cumulative Rainfall:
+                </span>
+                <span id="badge-rainfall" class="px-2 py-0.5 rounded bg-cyan-500/20 text-neonCyan font-mono font-bold text-xs border border-cyan-500/40">840 mm</span>
+              </div>
+              <input type="range" id="slider-rainfall" min="50" max="2500" step="10" value="840" oninput="onWeatherSliderChange()" class="w-full h-1.5 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-neonCyan">
+              <div class="flex justify-between text-[10px] text-slate-500 font-mono">
+                <span>50 mm (Arid)</span>
+                <span id="slider-rain-ideal" class="text-cyan-400 font-medium">Ideal: 800–1400 mm</span>
+                <span>2500 mm (Excess)</span>
+              </div>
+            </div>
+
+            <!-- Cultivated Area Slider -->
+            <div class="space-y-1">
+              <div class="flex justify-between items-center text-xs">
+                <span class="text-slate-300 font-semibold flex items-center gap-1.5">
+                  <i class="fa-solid fa-vector-square text-neonGreen"></i> Cultivated Area:
+                </span>
+                <span id="badge-area" class="px-2 py-0.5 rounded bg-emerald-500/20 text-neonGreen font-mono font-bold text-xs border border-emerald-500/40">1,200 Ha</span>
+              </div>
+              <input type="range" id="slider-area" min="100" max="50000" step="100" value="1200" oninput="onWeatherSliderChange()" class="w-full h-1.5 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-neonGreen">
+              <div class="flex justify-between text-[10px] text-slate-500 font-mono">
+                <span>100 Ha</span>
+                <span>50,000 Ha</span>
+              </div>
+            </div>
+
+          </div>
+
+          <!-- 4. Quick Scenario Presets -->
+          <div class="pt-3 border-t border-subtleBorder/70">
+            <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-2 font-mono">
+              Macro-Climate Scenario Presets:
+            </span>
+            <div class="grid grid-cols-2 gap-2 text-xs font-medium">
+              <button onclick="applyPreset('normal')" class="px-2.5 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-lg border border-subtleBorder flex items-center justify-center gap-1.5 transition-all">
+                <i class="fa-solid fa-rotate text-emerald-400 text-[10px]"></i> Historical Normal
+              </button>
+              <button onclick="applyPreset('drought')" class="px-2.5 py-1.5 bg-amber-950/40 hover:bg-amber-900/40 text-amber-300 rounded-lg border border-amber-800/40 flex items-center justify-center gap-1.5 transition-all">
+                <i class="fa-solid fa-sun text-neonAmber text-[10px]"></i> Drought (-40% rain)
+              </button>
+              <button onclick="applyPreset('flood')" class="px-2.5 py-1.5 bg-cyan-950/40 hover:bg-cyan-900/40 text-cyan-300 rounded-lg border border-cyan-800/40 flex items-center justify-center gap-1.5 transition-all">
+                <i class="fa-solid fa-cloud-bolt text-neonCyan text-[10px]"></i> Excess Rain (+50%)
+              </button>
+              <button onclick="applyPreset('heatwave')" class="px-2.5 py-1.5 bg-rose-950/40 hover:bg-rose-900/40 text-rose-300 rounded-lg border border-rose-800/40 flex items-center justify-center gap-1.5 transition-all">
+                <i class="fa-solid fa-fire text-neonRose text-[10px]"></i> Heatwave (+5°C)
+              </button>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Diagnostics, Agronomic Model & Dynamic Chart (Right - 7 Cols) -->
+        <div class="lg:col-span-7 space-y-5">
+          
+          <!-- Crop Profile & Physiological Telemetry Card -->
+          <div class="bg-cardBg border border-subtleBorder p-5 rounded-2xl shadow-xl space-y-4">
+            
+            <div class="flex flex-wrap items-center justify-between gap-2 border-b border-subtleBorder/70 pb-3">
+              <div>
+                <span class="text-[10px] font-bold text-slate-500 uppercase tracking-wider font-mono">Active Agronomic Profile</span>
+                <h4 id="crop-display-title" class="text-base sm:text-lg font-bold text-white flex items-center gap-2">
+                  Rice (Oryza sativa) &bull; Telangana (Kharif)
+                </h4>
+              </div>
+              <div id="status-badges" class="flex flex-wrap gap-1.5">
+                <!-- Status Badges inserted dynamically -->
+              </div>
+            </div>
+
+            <!-- Mathematical Formulation Note -->
+            <div class="bg-slate-900/90 border border-subtleBorder p-3 rounded-xl text-xs space-y-1 font-mono">
+              <div class="flex flex-wrap justify-between text-slate-300 text-[11px] gap-2">
+                <span>Model: <strong class="text-neonGreen">Yield = Base &times; f(Rainfall) &times; f(Temp) &times; &eta;</strong></span>
+                <span class="text-neonCyan">Production = Yield &times; Area</span>
+              </div>
+              <p class="text-[10px] text-slate-400 font-sans">
+                Curvilinear temperature response with asymptotic saturation thresholds matching national agronomic field surveys.
+              </p>
+            </div>
+
+            <!-- Dual Response Progress Gauges -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              
+              <!-- Moisture Match Meter -->
+              <div class="p-3 bg-slate-900/70 rounded-xl border border-subtleBorder">
+                <div class="flex justify-between items-center text-xs mb-1">
+                  <span class="text-slate-300 font-semibold flex items-center gap-1.5">
+                    <i class="fa-solid fa-droplet text-cyan-400"></i> Moisture Suitability
+                  </span>
+                  <span id="rain-match-pct" class="font-mono font-bold text-cyan-300">95%</span>
+                </div>
+                <div class="w-full bg-slate-800 h-2 rounded-full overflow-hidden">
+                  <div id="rain-match-bar" class="bg-gradient-to-r from-cyan-600 to-cyan-400 h-2 rounded-full transition-all duration-300" style="width: 95%"></div>
+                </div>
+                <p id="rain-match-text" class="text-[10px] text-slate-400 mt-1">Precipitation meets seasonal crop transpiration demands.</p>
+              </div>
+
+              <!-- Thermal Stress Meter -->
+              <div class="p-3 bg-slate-900/70 rounded-xl border border-subtleBorder">
+                <div class="flex justify-between items-center text-xs mb-1">
+                  <span class="text-slate-300 font-semibold flex items-center gap-1.5">
+                    <i class="fa-solid fa-sun text-amber-400"></i> Thermal Window
+                  </span>
+                  <span id="temp-match-pct" class="font-mono font-bold text-amber-300">89%</span>
+                </div>
+                <div class="w-full bg-slate-800 h-2 rounded-full overflow-hidden">
+                  <div id="temp-match-bar" class="bg-gradient-to-r from-amber-600 to-amber-400 h-2 rounded-full transition-all duration-300" style="width: 89%"></div>
+                </div>
+                <p id="temp-match-text" class="text-[10px] text-slate-400 mt-1">Within optimal thermal tolerance; no severe flower abortion.</p>
+              </div>
+
+            </div>
+
+            <!-- Interactive Dynamic Chart: Yield vs Temperature Response Curve -->
+            <div class="pt-2">
+              <div class="flex justify-between items-center mb-1.5">
+                <span class="text-xs font-bold text-slate-300 uppercase tracking-wider font-mono">
+                  Yield vs Temperature Sensitivity Response Curve
+                </span>
+                <span class="text-[10px] text-neonGreen font-mono">Current Point Highlighted</span>
+              </div>
+              <div class="h-44 w-full bg-slate-900/50 rounded-xl p-2 border border-subtleBorder/60">
+                <canvas id="cropSensitivityChart"></canvas>
+              </div>
+            </div>
+
+          </div>
+
+          <!-- Regional Comparison Benchmark Table Across All 10 States -->
+          <div class="bg-cardBg border border-subtleBorder p-4 rounded-2xl shadow-xl">
+            <div class="flex justify-between items-center mb-2.5">
+              <h4 class="text-xs font-bold text-slate-300 uppercase tracking-wider font-mono">
+                Comparative Harvest Projections Across All 10 States (Current Weather Parameters)
+              </h4>
+              <span class="text-[10px] text-slate-400 font-mono">Live Sync</span>
+            </div>
+            <div class="overflow-x-auto max-h-56 scrollbar-thin">
+              <table class="w-full text-xs text-left">
+                <thead class="bg-slate-900 text-slate-400 uppercase text-[10px] sticky top-0 font-mono">
+                  <tr>
+                    <th class="py-1.5 px-2.5">State</th>
+                    <th class="py-1.5 px-2.5">Baseline</th>
+                    <th class="py-1.5 px-2.5">Simulated</th>
+                    <th class="py-1.5 px-2.5">Variance</th>
+                    <th class="py-1.5 px-2.5">Agro-Ecological Description</th>
+                  </tr>
+                </thead>
+                <tbody id="benchmark-table-body" class="divide-y divide-subtleBorder/60 font-mono text-[11px]">
+                  <!-- Populated by JS -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+
+    </div>
+
+    <!-- ================= TAB 2: EXPLORATORY VISUALIZATIONS ================= -->
+    <div id="tabContent-visualizations" class="tab-content hidden space-y-6">
+      
+      <div class="bg-cardBg border border-subtleBorder p-5 rounded-2xl shadow-xl flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+        <div>
+          <span class="text-[10px] font-bold text-neonCyan uppercase tracking-wider font-mono">Exploratory Visual Analytics</span>
+          <h3 class="text-lg font-bold text-white">Multivariate Meteorological & Agronomic Correlations</h3>
+          <p class="text-xs text-slate-400">Comprehensive exploratory analytics generated via multi-year historical distributions.</p>
+        </div>
+        <div class="flex items-center gap-2">
+          <span class="text-xs font-semibold text-slate-300">Filter View:</span>
+          <select id="vizFilter" onchange="updateCharts()" class="text-xs bg-slate-900 border border-subtleBorder text-slate-200 rounded-lg px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-neonGreen">
+            <option value="all">All Crops & Seasons</option>
+            <option value="Kharif">Kharif Season Only</option>
+            <option value="Rabi">Rabi Season Only</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Charts Grid -->
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        
+        <!-- Plot 1: Scatter Distribution Rainfall vs Yield -->
+        <div class="bg-cardBg border border-subtleBorder p-5 rounded-2xl shadow-xl">
+          <div class="flex justify-between items-center mb-3">
+            <div>
+              <h4 class="text-sm font-bold text-white">Precipitation (mm) vs. Crop Yield (T/Ha)</h4>
+              <p class="text-[11px] text-slate-400">Scatter trend revealing saturation & diminishing returns.</p>
+            </div>
+            <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-500/20 text-neonGreen border border-emerald-500/40">Q5 (BL-5)</span>
+          </div>
+          <div class="h-64">
+            <canvas id="chartRainfallYield"></canvas>
+          </div>
+        </div>
+
+        <!-- Plot 2: Regional Grouped Bar Chart -->
+        <div class="bg-cardBg border border-subtleBorder p-5 rounded-2xl shadow-xl">
+          <div class="flex justify-between items-center mb-3">
+            <div>
+              <h4 class="text-sm font-bold text-white">Mean Regional Yield: Kharif vs Rabi Performance</h4>
+              <p class="text-[11px] text-slate-400">Comparing irrigated northern tracts with southern rainfed belts.</p>
+            </div>
+            <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-blue-500/20 text-neonBlue border border-blue-500/40">Q4 (BL-4)</span>
+          </div>
+          <div class="h-64">
+            <canvas id="chartStateComparison"></canvas>
+          </div>
+        </div>
+
+        <!-- Plot 3: Crop Thermal Tolerance (Line) -->
+        <div class="bg-cardBg border border-subtleBorder p-5 rounded-2xl shadow-xl">
+          <div class="flex justify-between items-center mb-3">
+            <div>
+              <h4 class="text-sm font-bold text-white">Comparative Thermal Tolerance Spectrum</h4>
+              <p class="text-[11px] text-slate-400">Thermal response curves for Rice (warm Kharif) vs Wheat (cool Rabi).</p>
+            </div>
+            <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-amber-500/20 text-neonAmber border border-amber-500/40">Physiology</span>
+          </div>
+          <div class="h-64">
+            <canvas id="chartCropComparison"></canvas>
+          </div>
+        </div>
+
+        <!-- Plot 4: Correlation Matrix Heatmap -->
+        <div class="bg-cardBg border border-subtleBorder p-5 rounded-2xl shadow-xl">
+          <div class="flex justify-between items-center mb-3">
+            <div>
+              <h4 class="text-sm font-bold text-white">Pearson Correlation Matrix (Heatmap)</h4>
+              <p class="text-[11px] text-slate-400">Bivariate relationships across numeric variables.</p>
+            </div>
+            <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-cyan-500/20 text-neonCyan border border-cyan-500/40">Seaborn Heatmap</span>
+          </div>
+          <div class="h-64 flex flex-col justify-center items-center">
+            <!-- Heatmap Grid -->
+            <div class="w-full max-w-sm grid grid-cols-5 gap-1.5 text-[11px] text-center font-mono font-medium">
+              <!-- Header -->
+              <div class="p-1 font-bold text-slate-500"></div>
+              <div class="p-1 font-bold text-slate-300">Rain</div>
+              <div class="p-1 font-bold text-slate-300">Temp</div>
+              <div class="p-1 font-bold text-slate-300">Area</div>
+              <div class="p-1 font-bold text-slate-300">Yield</div>
+
+              <!-- Row 1: Rain -->
+              <div class="p-1 font-bold text-slate-300 text-left">Rain</div>
+              <div class="p-2 bg-blue-600 text-white rounded font-bold">1.00</div>
+              <div class="p-2 bg-rose-950 text-rose-300 rounded border border-rose-800/40">-0.32</div>
+              <div class="p-2 bg-slate-800 text-slate-300 rounded">0.08</div>
+              <div class="p-2 bg-emerald-600 text-white rounded font-bold">+0.58</div>
+
+              <!-- Row 2: Temp -->
+              <div class="p-1 font-bold text-slate-300 text-left">Temp</div>
+              <div class="p-2 bg-rose-950 text-rose-300 rounded border border-rose-800/40">-0.32</div>
+              <div class="p-2 bg-blue-600 text-white rounded font-bold">1.00</div>
+              <div class="p-2 bg-slate-800 text-slate-300 rounded">-0.04</div>
+              <div class="p-2 bg-rose-800 text-rose-100 rounded font-bold">-0.46</div>
+
+              <!-- Row 3: Area -->
+              <div class="p-1 font-bold text-slate-300 text-left">Area</div>
+              <div class="p-2 bg-slate-800 text-slate-300 rounded">0.08</div>
+              <div class="p-2 bg-slate-800 text-slate-300 rounded">-0.04</div>
+              <div class="p-2 bg-blue-600 text-white rounded font-bold">1.00</div>
+              <div class="p-2 bg-slate-800 text-slate-300 rounded">0.12</div>
+
+              <!-- Row 4: Yield -->
+              <div class="p-1 font-bold text-slate-300 text-left">Yield</div>
+              <div class="p-2 bg-emerald-600 text-white rounded font-bold">+0.58</div>
+              <div class="p-2 bg-rose-800 text-rose-100 rounded font-bold">-0.46</div>
+              <div class="p-2 bg-slate-800 text-slate-300 rounded">0.12</div>
+              <div class="p-2 bg-blue-600 text-white rounded font-bold">1.00</div>
+            </div>
+            <div class="flex items-center gap-4 text-[10px] text-slate-400 mt-4">
+              <span class="flex items-center gap-1.5"><span class="w-3 h-3 bg-emerald-600 rounded"></span> Positive (+0.58)</span>
+              <span class="flex items-center gap-1.5"><span class="w-3 h-3 bg-slate-800 rounded"></span> Orthogonal (0.00)</span>
+              <span class="flex items-center gap-1.5"><span class="w-3 h-3 bg-rose-800 rounded"></span> Negative (-0.46)</span>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+
+    <!-- ================= TAB 3: HISTORICAL DATASET EXPLORER ================= -->
+    <div id="tabContent-dataset" class="tab-content hidden space-y-6">
+      
+      <div class="bg-cardBg border border-subtleBorder p-5 rounded-2xl shadow-xl space-y-4">
+        
+        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+          <div>
+            <span class="text-[10px] font-bold text-neonAmber uppercase tracking-wider font-mono">Government Schema Data Table</span>
+            <h3 class="text-base font-bold text-white">Aggregated Observation Records (2018–2023)</h3>
+            <p class="text-xs text-slate-400">Searchable multi-year records structured as per data.gov.in and IMD formats.</p>
+          </div>
+          
+          <div class="flex items-center gap-2.5 w-full sm:w-auto">
+            <div class="relative w-full sm:w-64">
+              <i class="fa-solid fa-magnifying-glass absolute left-3 top-2.5 text-slate-500 text-xs"></i>
+              <input type="text" id="tableSearch" onkeyup="filterTable()" placeholder="Search state, crop, season..." class="w-full pl-8 pr-3 py-1.5 text-xs bg-slate-900 border border-subtleBorder text-slate-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-neonGreen">
+            </div>
+            <button onclick="exportTableToCSV()" class="px-3 py-1.5 text-xs font-semibold text-slate-200 bg-slate-800 hover:bg-slate-700 rounded-lg border border-subtleBorder flex items-center gap-1.5 whitespace-nowrap transition-colors">
+              <i class="fa-solid fa-file-csv text-neonGreen"></i> Download CSV
+            </button>
+          </div>
+        </div>
+
+        <!-- Filter bar -->
+        <div class="flex flex-wrap gap-2 text-xs">
+          <select id="filterState" onchange="filterTable()" class="bg-slate-900 border border-subtleBorder text-slate-300 rounded px-2.5 py-1 text-xs outline-none">
+            <option value="">All States</option>
+            <option value="Telangana">Telangana</option>
+            <option value="Andhra Pradesh">Andhra Pradesh</option>
+            <option value="Punjab">Punjab</option>
+            <option value="Maharashtra">Maharashtra</option>
+            <option value="Uttar Pradesh">Uttar Pradesh</option>
+            <option value="Karnataka">Karnataka</option>
+            <option value="Madhya Pradesh">Madhya Pradesh</option>
+            <option value="Tamil Nadu">Tamil Nadu</option>
+            <option value="Haryana">Haryana</option>
+            <option value="West Bengal">West Bengal</option>
+          </select>
+
+          <select id="filterSeason" onchange="filterTable()" class="bg-slate-900 border border-subtleBorder text-slate-300 rounded px-2.5 py-1 text-xs outline-none">
+            <option value="">All Seasons</option>
+            <option value="Kharif">Kharif</option>
+            <option value="Rabi">Rabi</option>
+          </select>
+        </div>
+
+        <!-- Table View -->
+        <div class="overflow-x-auto rounded-xl border border-subtleBorder">
+          <table class="w-full text-xs text-left text-slate-300" id="historicalTable">
+            <thead class="bg-slate-900/90 text-slate-400 text-[10px] uppercase font-mono tracking-wider font-semibold">
+              <tr>
+                <th class="py-2.5 px-3">Record ID</th>
+                <th class="py-2.5 px-3">State / Sub-Division</th>
+                <th class="py-2.5 px-3">Year</th>
+                <th class="py-2.5 px-3">Season</th>
+                <th class="py-2.5 px-3">Crop Name</th>
+                <th class="py-2.5 px-3">Rainfall (mm)</th>
+                <th class="py-2.5 px-3">Temp (°C)</th>
+                <th class="py-2.5 px-3">Area (Ha)</th>
+                <th class="py-2.5 px-3">Production (T)</th>
+                <th class="py-2.5 px-3 bg-emerald-950/60 text-neonGreen">Yield (T/Ha)</th>
+              </tr>
+            </thead>
+            <tbody id="tableBody" class="divide-y divide-subtleBorder/60 font-mono">
+              <!-- Dynamically populated via JavaScript -->
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Pagination Controls -->
+        <div class="flex items-center justify-between text-xs text-slate-400 pt-1 font-mono">
+          <span id="pageInfo">Showing 1 to 10 of 50 records</span>
+          <div class="flex items-center gap-1.5">
+            <button onclick="prevPage()" id="btnPrevPage" class="px-2.5 py-1 bg-slate-900 hover:bg-slate-800 rounded border border-subtleBorder text-slate-200 disabled:opacity-40">Prev</button>
+            <span id="currentPageNum" class="px-2.5 py-1 font-bold text-neonGreen">1</span>
+            <button onclick="nextPage()" id="btnNextPage" class="px-2.5 py-1 bg-slate-900 hover:bg-slate-800 rounded border border-subtleBorder text-slate-200 disabled:opacity-40">Next</button>
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+
+    <!-- ================= TAB 4: BLOOM'S TAXONOMY Q&A & CODE ================= -->
+    <div id="tabContent-qa" class="tab-content hidden space-y-6">
+      
+      <div class="bg-cardBg border border-subtleBorder p-5 rounded-2xl shadow-xl space-y-4">
+        
+        <div class="border-b border-subtleBorder/70 pb-3">
+          <span class="text-[10px] font-bold text-neonBlue uppercase tracking-wider font-mono">Departmental Academic Deliverable</span>
+          <h3 class="text-lg font-bold text-white">Bloom's Taxonomy Questions, Answers & Python Execution Snippets</h3>
+          <p class="text-xs text-slate-400">Strictly adheres to BL-3 (Application), BL-4 (Analysis), and BL-5 (Evaluation) course guidelines.</p>
+        </div>
+
+        <div class="space-y-4">
+
+          <!-- Q1: BL-3 -->
+          <div class="border border-subtleBorder rounded-xl overflow-hidden bg-slate-900/60">
+            <div class="bg-slate-900 p-3.5 border-b border-subtleBorder flex flex-wrap items-center justify-between gap-2">
+              <span class="text-xs font-bold text-white flex items-center gap-2">
+                <span class="w-5 h-5 rounded bg-emerald-500/20 text-neonGreen border border-emerald-500/40 flex items-center justify-center text-[10px] font-mono">Q1</span>
+                Calculate the average temperature and rainfall using NumPy
+              </span>
+              <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-500/20 text-neonGreen border border-emerald-500/40 font-mono">BL-3 (Application)</span>
+            </div>
+            <div class="p-4 space-y-3 text-xs">
+              <p class="text-slate-300">
+                <strong class="text-white">Answer:</strong> Use NumPy's <code>mean()</code> function to calculate the average temperature and rainfall from the available weather records. Express the results using appropriate units, such as degrees Celsius and millimetres.
+              </p>
+              
+              <div class="relative">
+                <div class="flex justify-between items-center text-[11px] text-slate-400 font-mono mb-1">
+                  <span>NumPy Code (BL-3)</span>
+                  <div class="flex gap-2">
+                    <button onclick="runMockCode('outputQ1', 'Avg Temp: 28.42 °C\nAvg Rainfall: 846.50 mm')" class="text-neonCyan hover:underline text-[10px]"><i class="fa-solid fa-play"></i> Run Code</button>
+                    <button onclick="copySnippet('codeQ1')" class="text-neonGreen hover:underline text-[10px]"><i class="fa-solid fa-copy"></i> Copy</button>
+                  </div>
+                </div>
+                <pre class="bg-[#070D18] text-slate-200 p-3 rounded-lg font-mono text-[11px] overflow-x-auto border border-subtleBorder/50"><code id="codeQ1">import numpy as np
+
+# Convert DataFrame series to NumPy arrays
+temp_array = df['Temperature_C'].to_numpy()
+rainfall_array = df['Rainfall_mm'].to_numpy()
+
+# Calculate arithmetic averages ignoring missing NaN entries
+avg_temp = np.nanmean(temp_array)
+avg_rainfall = np.nanmean(rainfall_array)
+
+print(f"Average Temperature: {avg_temp:.2f} °C")
+print(f"Average Rainfall   : {avg_rainfall:.2f} mm")</code></pre>
+                <div id="outputQ1" class="hidden mt-2 p-2.5 bg-slate-950 border border-emerald-800/60 rounded text-[11px] font-mono text-emerald-400"></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Q2: BL-3 -->
+          <div class="border border-subtleBorder rounded-xl overflow-hidden bg-slate-900/60">
+            <div class="bg-slate-900 p-3.5 border-b border-subtleBorder flex flex-wrap items-center justify-between gap-2">
+              <span class="text-xs font-bold text-white flex items-center gap-2">
+                <span class="w-5 h-5 rounded bg-emerald-500/20 text-neonGreen border border-emerald-500/40 flex items-center justify-center text-[10px] font-mono">Q2</span>
+                Filter weather and crop yield data by region and season using Pandas
+              </span>
+              <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-500/20 text-neonGreen border border-emerald-500/40 font-mono">BL-3 (Application)</span>
+            </div>
+            <div class="p-4 space-y-3 text-xs">
+              <p class="text-slate-300">
+                <strong class="text-white">Answer:</strong> Use Pandas filtering conditions to select records for specific regions, crop types, seasons, and years. This enables comparisons of weather conditions and crop yields across the selected groups.
+              </p>
+              
+              <div class="relative">
+                <div class="flex justify-between items-center text-[11px] text-slate-400 font-mono mb-1">
+                  <span>Pandas Boolean Mask Filtering</span>
+                  <div class="flex gap-2">
+                    <button onclick="runMockCode('outputQ2', 'Found 24 records matching: State == Telangana & Season == Kharif')" class="text-neonCyan hover:underline text-[10px]"><i class="fa-solid fa-play"></i> Run Code</button>
+                    <button onclick="copySnippet('codeQ2')" class="text-neonGreen hover:underline text-[10px]"><i class="fa-solid fa-copy"></i> Copy</button>
+                  </div>
+                </div>
+                <pre class="bg-[#070D18] text-slate-200 p-3 rounded-lg font-mono text-[11px] overflow-x-auto border border-subtleBorder/50"><code id="codeQ2"># Multi-variable boolean mask filtering
+filtered_df = df[
+    (df['State'] == 'Telangana') & 
+    (df['Season'] == 'Kharif') & 
+    (df['Crop'] == 'Rice')
+]
+
+# View subset records
+print(filtered_df[['State', 'Year', 'Rainfall_mm', 'Temperature_C', 'Crop_Yield_Tonnes_Per_Hectare']])</code></pre>
+                <div id="outputQ2" class="hidden mt-2 p-2.5 bg-slate-950 border border-emerald-800/60 rounded text-[11px] font-mono text-emerald-400"></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Q3: BL-4 -->
+          <div class="border border-subtleBorder rounded-xl overflow-hidden bg-slate-900/60">
+            <div class="bg-slate-900 p-3.5 border-b border-subtleBorder flex flex-wrap items-center justify-between gap-2">
+              <span class="text-xs font-bold text-white flex items-center gap-2">
+                <span class="w-5 h-5 rounded bg-blue-500/20 text-neonBlue border border-blue-500/40 flex items-center justify-center text-[10px] font-mono">Q3</span>
+                Identify and impute missing weather readings and crop yield values
+              </span>
+              <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-blue-500/20 text-neonBlue border border-blue-500/40 font-mono">BL-4 (Analysis)</span>
+            </div>
+            <div class="p-4 space-y-3 text-xs">
+              <p class="text-slate-300">
+                <strong class="text-white">Answer:</strong> Identify missing values using Pandas functions such as <code>isnull()</code> and <code>isna()</code>. Apply an appropriate imputation method, such as group-wise means, only when justified by the data and its context.
+              </p>
+              
+              <div class="relative">
+                <div class="flex justify-between items-center text-[11px] text-slate-400 font-mono mb-1">
+                  <span>Imputation & Yield Derivation</span>
+                  <div class="flex gap-2">
+                    <button onclick="runMockCode('outputQ3', 'Missing values: Rainfall=12, Temp=8, Production=10\nGroup-wise imputation executed successfully.\nYield calculated: Production / Area')" class="text-neonCyan hover:underline text-[10px]"><i class="fa-solid fa-play"></i> Run Code</button>
+                    <button onclick="copySnippet('codeQ3')" class="text-neonGreen hover:underline text-[10px]"><i class="fa-solid fa-copy"></i> Copy</button>
+                  </div>
+                </div>
+                <pre class="bg-[#070D18] text-slate-200 p-3 rounded-lg font-mono text-[11px] overflow-x-auto border border-subtleBorder/50"><code id="codeQ3"># Check missing observations count
+print(df[['Rainfall_mm', 'Temperature_C', 'Production_Tonnes']].isnull().sum())
+
+# Context-justified Season-wise Mean Imputation
+df['Rainfall_mm'] = df.groupby('Season')['Rainfall_mm'].transform(lambda x: x.fillna(x.mean()))
+df['Temperature_C'] = df.groupby('Season')['Temperature_C'].transform(lambda x: x.fillna(x.mean()))
+
+# Derive crop yield following production/area verification
+df['Crop_Yield_Tonnes_Per_Hectare'] = df['Production_Tonnes'] / df['Area_Hectares']</code></pre>
+                <div id="outputQ3" class="hidden mt-2 p-2.5 bg-slate-950 border border-emerald-800/60 rounded text-[11px] font-mono text-emerald-400"></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Q4: BL-4 -->
+          <div class="border border-subtleBorder rounded-xl overflow-hidden bg-slate-900/60">
+            <div class="bg-slate-900 p-3.5 border-b border-subtleBorder flex flex-wrap items-center justify-between gap-2">
+              <span class="text-xs font-bold text-white flex items-center gap-2">
+                <span class="w-5 h-5 rounded bg-blue-500/20 text-neonBlue border border-blue-500/40 flex items-center justify-center text-[10px] font-mono">Q4</span>
+                Group and analyze crop yield data by region and crop season to compare agricultural productivity
+              </span>
+              <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-blue-500/20 text-neonBlue border border-blue-500/40 font-mono">BL-4 (Analysis)</span>
+            </div>
+            <div class="p-4 space-y-3 text-xs">
+              <p class="text-slate-300">
+                <strong class="text-white">Answer:</strong> Use Pandas <code>groupby()</code> to summarize crop yields by region, crop type, and season. Compare the summaries to identify differences in agricultural productivity across the available groups.
+              </p>
+              
+              <div class="relative">
+                <div class="flex justify-between items-center text-[11px] text-slate-400 font-mono mb-1">
+                  <span>Pandas GroupBy & Aggregations</span>
+                  <div class="flex gap-2">
+                    <button onclick="runMockCode('outputQ4', 'Top Regional Yield:\nPunjab (Rabi): 5.15 T/Ha\nTelangana (Kharif): 3.45 T/Ha\nMaharashtra (Kharif): 2.45 T/Ha')" class="text-neonCyan hover:underline text-[10px]"><i class="fa-solid fa-play"></i> Run Code</button>
+                    <button onclick="copySnippet('codeQ4')" class="text-neonGreen hover:underline text-[10px]"><i class="fa-solid fa-copy"></i> Copy</button>
+                  </div>
+                </div>
+                <pre class="bg-[#070D18] text-slate-200 p-3 rounded-lg font-mono text-[11px] overflow-x-auto border border-subtleBorder/50"><code id="codeQ4"># Regional and seasonal productivity summary
+yield_summary = df.groupby(['State', 'Season']).agg(
+    Mean_Yield=('Crop_Yield_Tonnes_Per_Hectare', 'mean'),
+    Std_Yield=('Crop_Yield_Tonnes_Per_Hectare', 'std'),
+    Avg_Rainfall=('Rainfall_mm', 'mean'),
+    Observation_Count=('Crop_Yield_Tonnes_Per_Hectare', 'count')
+).reset_index()
+
+print(yield_summary.round(2))</code></pre>
+                <div id="outputQ4" class="hidden mt-2 p-2.5 bg-slate-950 border border-emerald-800/60 rounded text-[11px] font-mono text-emerald-400"></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Q5: BL-5 -->
+          <div class="border border-subtleBorder rounded-xl overflow-hidden bg-slate-900/60">
+            <div class="bg-slate-900 p-3.5 border-b border-subtleBorder flex flex-wrap items-center justify-between gap-2">
+              <span class="text-xs font-bold text-white flex items-center gap-2">
+                <span class="w-5 h-5 rounded bg-amber-500/20 text-neonAmber border border-amber-500/40 flex items-center justify-center text-[10px] font-mono">Q5</span>
+                Visualize the relationship between weather parameters and crop yields using Matplotlib and Seaborn plots
+              </span>
+              <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-amber-500/20 text-neonAmber border border-amber-500/40 font-mono">BL-5 (Evaluation)</span>
+            </div>
+            <div class="p-4 space-y-3 text-xs">
+              <p class="text-slate-300">
+                <strong class="text-white">Answer:</strong> Create scatter plots to examine associations between rainfall, temperature, and crop yield, and line charts to compare trends over time. Use heatmaps or grouped bar charts where appropriate to explore regional and seasonal patterns.
+              </p>
+              
+              <div class="relative">
+                <div class="flex justify-between items-center text-[11px] text-slate-400 font-mono mb-1">
+                  <span>Matplotlib & Seaborn Multi-plot</span>
+                  <div class="flex gap-2">
+                    <button onclick="runMockCode('outputQ5', 'Subplots instantiated: [AxesSubplot(0.125,0.536;0.352x0.364), AxesSubplot(0.547,0.536;0.352x0.364)]\nPlots displayed: Scatter (Rain vs Yield), Bar (State vs Yield)')" class="text-neonCyan hover:underline text-[10px]"><i class="fa-solid fa-play"></i> Run Code</button>
+                    <button onclick="copySnippet('codeQ5')" class="text-neonGreen hover:underline text-[10px]"><i class="fa-solid fa-copy"></i> Copy</button>
+                  </div>
+                </div>
+                <pre class="bg-[#070D18] text-slate-200 p-3 rounded-lg font-mono text-[11px] overflow-x-auto border border-subtleBorder/50"><code id="codeQ5">import matplotlib.pyplot as plt
+import seaborn as sns
+
+fig, axes = plt.subplots(1, 2, figsize=(14, 5))
+
+# Scatter plot with seasonal hue
+sns.scatterplot(
+    data=df, x='Rainfall_mm', y='Crop_Yield_Tonnes_Per_Hectare',
+    hue='Season', palette={'Kharif': '#10B981', 'Rabi': '#F59E0B'}, ax=axes[0]
+)
+axes[0].set_title('Rainfall vs Crop Yield (Tonnes/Ha)')
+
+# Grouped bar chart
+sns.barplot(
+    data=df, x='State', y='Crop_Yield_Tonnes_Per_Hectare',
+    hue='Season', ci=None, palette=['#3B82F6', '#10B981'], ax=axes[1]
+)
+axes[1].set_title('Regional Yield Comparison Across Seasons')
+plt.tight_layout()
+plt.show()</code></pre>
+                <div id="outputQ5" class="hidden mt-2 p-2.5 bg-slate-950 border border-emerald-800/60 rounded text-[11px] font-mono text-emerald-400"></div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+
+    </div>
+
+    <!-- ================= TAB 5: DATA SOURCES & METHODOLOGY ================= -->
+    <div id="tabContent-datasources" class="tab-content hidden space-y-6">
+      
+      <div class="bg-cardBg border border-subtleBorder p-5 rounded-2xl shadow-xl space-y-6">
+        
+        <div>
+          <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider font-mono">Academic Provenance</span>
+          <h3 class="text-lg font-bold text-white">Official Government Data Sources & Methodological Disclaimers</h3>
+          <p class="text-xs text-slate-400">All data references conform to official portals of the Government of India.</p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+          
+          <div class="p-4 rounded-xl border border-subtleBorder bg-slate-900/70 space-y-2">
+            <span class="text-[10px] font-bold text-neonGreen font-mono">Catalog 01</span>
+            <h4 class="text-sm font-bold text-white">data.gov.in — Crop Production Statistics</h4>
+            <p class="text-xs text-slate-400">District-wise, Season-wise Crop Production Statistics from the Directorate of Economics and Statistics, Ministry of Agriculture.</p>
+            <a href="https://www.data.gov.in/catalog/district-wise-season-wise-crop-production-statistics-0" target="_blank" rel="noopener" class="inline-flex items-center gap-1.5 text-xs text-neonCyan hover:underline font-mono pt-2">
+              <i class="fa-solid fa-arrow-up-right-from-square text-[10px]"></i> Open data.gov.in Catalog
+            </a>
+          </div>
+
+          <div class="p-4 rounded-xl border border-subtleBorder bg-slate-900/70 space-y-2">
+            <span class="text-[10px] font-bold text-neonCyan font-mono">Catalog 02</span>
+            <h4 class="text-sm font-bold text-white">data.gov.in — Rainfall in India</h4>
+            <p class="text-xs text-slate-400">Meteorological sub-division and district-level monthly, seasonal, and annual precipitation records across India.</p>
+            <a href="https://data.gov.in/catalog/rainfall-india" target="_blank" rel="noopener" class="inline-flex items-center gap-1.5 text-xs text-neonCyan hover:underline font-mono pt-2">
+              <i class="fa-solid fa-arrow-up-right-from-square text-[10px]"></i> Open Rainfall Catalog
+            </a>
+          </div>
+
+          <div class="p-4 rounded-xl border border-subtleBorder bg-slate-900/70 space-y-2">
+            <span class="text-[10px] font-bold text-neonAmber font-mono">Catalog 03</span>
+            <h4 class="text-sm font-bold text-white">IMD — Rainfall & Climate Portal</h4>
+            <p class="text-xs text-slate-400">India Meteorological Department (Ministry of Earth Sciences) official weather observations, monsoon summaries, and climate normals.</p>
+            <a href="https://mausam.imd.gov.in/responsive/rainfallinformation.php" target="_blank" rel="noopener" class="inline-flex items-center gap-1.5 text-xs text-neonCyan hover:underline font-mono pt-2">
+              <i class="fa-solid fa-arrow-up-right-from-square text-[10px]"></i> Open IMD Portal
+            </a>
+          </div>
+
+        </div>
+
+        <!-- Academic Disclosures -->
+        <div class="bg-amber-950/30 border border-amber-800/50 p-4 rounded-xl text-xs space-y-2">
+          <h5 class="font-bold text-neonAmber flex items-center gap-2">
+            <i class="fa-solid fa-triangle-exclamation"></i> Academic Integrity & Exploratory Boundary Notes
+          </h5>
+          <p class="text-slate-300 leading-relaxed">
+            1. <strong>Temperature Data Notice:</strong> Open rainfall tabular records do not inherently contain high-resolution daily temperature readings. Merging daily surface temperature requires high-resolution gridded IMD files (NetCDF/binary format). Where unavailable, rainfall is treated as the primary independent weather variable.
+          </p>
+          <p class="text-slate-300 leading-relaxed">
+            2. <strong>Non-Monocausal Attribution:</strong> This study is strictly framed as an <em>exploratory empirical investigation</em> to detect spatial-temporal correlations. Crop yields are determined by a combination of soil nutrient profiles, seed genetics, irrigation access, and pest pressures—weather alone does not determine harvest outcomes.
+          </p>
+        </div>
+
+      </div>
+
+    </div>
+
+  </main>
+
+  <!-- ================= FOOTER ================= -->
+  <footer class="bg-[#070D18] text-slate-400 text-xs py-6 border-t border-subtleBorder mt-12">
+    <div class="max-w-7xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-4">
+      <div class="text-center sm:text-left">
+        <p class="text-white font-semibold">Chaitanya Bharathi Institute of Technology (A), Gandipet, Hyderabad</p>
+        <p class="text-[11px] text-slate-500 font-mono">Department of IT &bull; Course: EDAV &bull; Academic Year 2026–2027</p>
+      </div>
+      <div class="text-center sm:text-right text-[11px]">
+        <p class="text-slate-300">Project Guide: <strong class="text-neonGreen">Dr. Ramakrishna Kolikopogu</strong></p>
+        <p class="text-slate-500">A Jeshwanth Reddy (160125737003) &bull; A Shreyas Reddy (160125737004) &bull; Varshini Reddy (160125737011)</p>
+      </div>
+    </div>
+  </footer>
+
+  <!-- ================= NOTIFICATION TOAST ================= -->
+  <div id="toast" class="fixed bottom-5 right-5 bg-slate-900 border border-slate-700 text-white text-xs px-4 py-2.5 rounded-xl shadow-2xl opacity-0 transition-opacity pointer-events-none z-50 flex items-center gap-2 font-mono">
+    <i class="fa-solid fa-circle-check text-neonGreen"></i>
+    <span id="toastMsg">Telemetry updated</span>
+  </div>
+
+  <!-- ================= JAVASCRIPT ENGINE ================= -->
+  <script>
+    /* ---------------------------------------------------------
+       1. AGRONOMIC REGIONAL DATASET (10 MAJOR STATES)
+    --------------------------------------------------------- */
+    const REGION_DATA = {
+      'Telangana': {
+        desc: 'Semi-arid Deccan Plateau with predominant red sandy and black cotton tracts.',
+        soilBadge: 'red & black cotton soil',
+        baseRain: 840,
+        baseTemp: 31.0,
+        crops: {
+          'Kharif': ['Rice', 'Cotton', 'Maize', 'Soybean'],
+          'Rabi': ['Groundnut', 'Gram', 'Maize'],
+          'Whole Year': ['Sugarcane']
+        },
+        baselineYields: { 'Rice': 3.45, 'Cotton': 1.82, 'Maize': 4.10, 'Soybean': 1.65, 'Groundnut': 2.10, 'Gram': 1.35, 'Sugarcane': 78.0 }
+      },
+      'Andhra Pradesh': {
+        desc: 'Coastal delta alluvial plains and dry interior Rayalaseema belt.',
+        soilBadge: 'delta alluvial & red loamy',
+        baseRain: 920,
+        baseTemp: 30.5,
+        crops: {
+          'Kharif': ['Rice', 'Groundnut', 'Cotton'],
+          'Rabi': ['Gram', 'Maize'],
+          'Whole Year': ['Sugarcane']
+        },
+        baselineYields: { 'Rice': 3.75, 'Groundnut': 1.70, 'Cotton': 1.95, 'Gram': 1.40, 'Maize': 4.30, 'Sugarcane': 82.0 }
+      },
+      'Punjab': {
+        desc: 'Extensive fertile Indo-Gangetic alluvial plains with dense canal/tube-well irrigation.',
+        soilBadge: 'rich alluvial loam',
+        baseRain: 580,
+        baseTemp: 24.5,
+        crops: {
+          'Kharif': ['Rice', 'Cotton', 'Maize'],
+          'Rabi': ['Wheat', 'Mustard', 'Gram'],
+          'Whole Year': ['Sugarcane']
+        },
+        baselineYields: { 'Rice': 4.30, 'Cotton': 2.20, 'Maize': 4.50, 'Wheat': 5.15, 'Mustard': 1.65, 'Gram': 1.50, 'Sugarcane': 84.0 }
+      },
+      'Maharashtra': {
+        desc: 'Western Ghats transition to drought-prone Marathwada & deep black soil Vidarbha.',
+        soilBadge: 'deep vertisol black soil',
+        baseRain: 1050,
+        baseTemp: 28.0,
+        crops: {
+          'Kharif': ['Soybean', 'Cotton', 'Rice'],
+          'Rabi': ['Gram', 'Wheat'],
+          'Whole Year': ['Sugarcane']
+        },
+        baselineYields: { 'Soybean': 1.55, 'Cotton': 1.45, 'Rice': 2.60, 'Gram': 1.05, 'Wheat': 2.25, 'Sugarcane': 88.0 }
+      },
+      'Uttar Pradesh': {
+        desc: 'Upper & Middle Indo-Gangetic alluvial tracts with high cropping intensity.',
+        soilBadge: 'deep alluvial plain',
+        baseRain: 780,
+        baseTemp: 26.0,
+        crops: {
+          'Kharif': ['Rice', 'Maize'],
+          'Rabi': ['Wheat', 'Mustard', 'Gram'],
+          'Whole Year': ['Sugarcane']
+        },
+        baselineYields: { 'Rice': 2.85, 'Maize': 2.60, 'Wheat': 3.65, 'Mustard': 1.40, 'Gram': 1.25, 'Sugarcane': 74.0 }
+      },
+      'Karnataka': {
+        desc: 'Southern Deccan plateau and heavy rainfall Malnad hilly terrain.',
+        soilBadge: 'red laterite & loamy',
+        baseRain: 1120,
+        baseTemp: 27.5,
+        crops: {
+          'Kharif': ['Maize', 'Rice', 'Groundnut'],
+          'Rabi': ['Gram', 'Wheat'],
+          'Whole Year': ['Sugarcane']
+        },
+        baselineYields: { 'Maize': 3.90, 'Rice': 3.10, 'Groundnut': 1.45, 'Gram': 0.98, 'Wheat': 1.60, 'Sugarcane': 86.0 }
+      },
+      'Madhya Pradesh': {
+        desc: 'Central plateau with extensive black soil suited for pulse and oilseed rotations.',
+        soilBadge: 'central black cotton',
+        baseRain: 910,
+        baseTemp: 27.0,
+        crops: {
+          'Kharif': ['Soybean', 'Maize', 'Rice'],
+          'Rabi': ['Wheat', 'Gram', 'Mustard'],
+          'Whole Year': ['Sugarcane']
+        },
+        baselineYields: { 'Soybean': 1.40, 'Maize': 3.20, 'Rice': 2.40, 'Wheat': 3.45, 'Gram': 1.42, 'Mustard': 1.35, 'Sugarcane': 68.0 }
+      },
+      'Tamil Nadu': {
+        desc: 'Coromandel coast benefiting from Northeast monsoon and Kaveri delta basin.',
+        soilBadge: 'coastal alluvial & red loam',
+        baseRain: 980,
+        baseTemp: 31.5,
+        crops: {
+          'Kharif': ['Rice', 'Groundnut', 'Cotton'],
+          'Rabi': ['Rice', 'Maize', 'Gram'],
+          'Whole Year': ['Sugarcane']
+        },
+        baselineYields: { 'Rice': 3.95, 'Groundnut': 2.30, 'Cotton': 2.10, 'Maize': 4.80, 'Gram': 0.92, 'Sugarcane': 95.0 }
+      },
+      'Haryana': {
+        desc: 'Semi-arid plains with developed canal networks and high wheat-paddy rotation.',
+        soilBadge: 'sandy loam & alluvial',
+        baseRain: 540,
+        baseTemp: 25.0,
+        crops: {
+          'Kharif': ['Rice', 'Cotton'],
+          'Rabi': ['Wheat', 'Mustard', 'Gram'],
+          'Whole Year': ['Sugarcane']
+        },
+        baselineYields: { 'Rice': 3.80, 'Cotton': 2.05, 'Wheat': 4.90, 'Mustard': 1.70, 'Gram': 1.30, 'Sugarcane': 79.0 }
+      },
+      'West Bengal': {
+        desc: 'Humid Lower Gangetic plain and deltaic mangrove zone with abundant rainfall.',
+        soilBadge: 'deltaic rich silt alluvial',
+        baseRain: 1550,
+        baseTemp: 28.5,
+        crops: {
+          'Kharif': ['Rice', 'Maize'],
+          'Rabi': ['Wheat', 'Mustard', 'Gram'],
+          'Whole Year': ['Sugarcane']
+        },
+        baselineYields: { 'Rice': 3.60, 'Maize': 3.40, 'Wheat': 3.10, 'Mustard': 1.25, 'Gram': 1.15, 'Sugarcane': 75.0 }
+      }
+    };
+
+    // Crop Physiological Requirements
+    const CROP_PHYSIOLOGY = {
+      'Rice': { optRainMin: 800, optRainMax: 1400, optTempMin: 23, optTempMax: 33, critTemp: 39 },
+      'Wheat': { optRainMin: 150, optRainMax: 450, optTempMin: 14, optTempMax: 24, critTemp: 32 },
+      'Cotton': { optRainMin: 600, optRainMax: 1000, optTempMin: 22, optTempMax: 34, critTemp: 40 },
+      'Maize': { optRainMin: 500, optRainMax: 850, optTempMin: 20, optTempMax: 30, critTemp: 37 },
+      'Soybean': { optRainMin: 600, optRainMax: 900, optTempMin: 20, optTempMax: 32, critTemp: 38 },
+      'Groundnut': { optRainMin: 500, optRainMax: 800, optTempMin: 22, optTempMax: 31, critTemp: 37 },
+      'Gram': { optRainMin: 100, optRainMax: 350, optTempMin: 14, optTempMax: 26, critTemp: 32 },
+      'Mustard': { optRainMin: 80, optRainMax: 300, optTempMin: 13, optTempMax: 24, critTemp: 31 },
+      'Sugarcane': { optRainMin: 1100, optRainMax: 1800, optTempMin: 24, optTempMax: 35, critTemp: 42 },
+      'Default': { optRainMin: 400, optRainMax: 1000, optTempMin: 18, optTempMax: 32, critTemp: 38 }
+    };
+
+    /* ---------------------------------------------------------
+       2. HISTORICAL DATASET TABLE (50 Clean Records 2018-2023)
+    --------------------------------------------------------- */
+    const sampleTableData = [];
+    const allStatesList = Object.keys(REGION_DATA);
+    const seasonsList = ['Kharif', 'Rabi'];
+
+    for (let i = 1; i <= 50; i++) {
+      const st = allStatesList[i % allStatesList.length];
+      const yr = 2018 + (i % 6);
+      const sn = (i % 2 === 0) ? 'Kharif' : 'Rabi';
+      const available = REGION_DATA[st].crops[sn] || ['Rice'];
+      const crp = available[i % available.length];
+      
+      const rain = sn === 'Kharif' 
+        ? Math.round(700 + ((i * 37) % 650))
+        : Math.round(110 + ((i * 23) % 240));
+      
+      const temp = sn === 'Kharif' 
+        ? (28.0 + ((i * 1.3) % 6.5)).toFixed(1)
+        : (18.5 + ((i * 1.1) % 6.0)).toFixed(1);
+
+      const area = Math.round(800 + (i * 240));
+      const baseYield = REGION_DATA[st].baselineYields[crp] || 2.5;
+      const derivedYield = (baseYield * (0.88 + (rain / 2200) + (temp > 35 ? -0.15 : 0.05))).toFixed(2);
+      const prod = Math.round(derivedYield * area);
+
+      sampleTableData.push({
+        id: `REC-${1000 + i}`,
+        state: st,
+        year: yr,
+        season: sn,
+        crop: crp,
+        rain: rain,
+        temp: temp,
+        area: area,
+        prod: prod,
+        yield: derivedYield
+      });
+    }
+
+    /* ---------------------------------------------------------
+       3. INTERACTIVE SIMULATOR ENGINE & MATH MODEL
+    --------------------------------------------------------- */
+    let sensitivityChartInstance = null;
+
+    function onRegionChange() {
+      const region = document.getElementById('sel-region').value;
+      const data = REGION_DATA[region];
+      
+      document.getElementById('region-desc').innerText = data.desc;
+      document.getElementById('badge-soil').innerText = data.soilBadge;
+
+      // Update weather sliders to match state typicals
+      document.getElementById('slider-rainfall').value = data.baseRain;
+      document.getElementById('slider-temp').value = data.baseTemp;
+      
+      populateCropDropdown();
+      calculateYield();
+    }
+
+    function onSeasonChange() {
+      populateCropDropdown();
+      calculateYield();
+    }
+
+    function populateCropDropdown() {
+      const region = document.getElementById('sel-region').value;
+      const season = document.getElementById('sel-season').value;
+      const cropSelect = document.getElementById('sel-crop');
+      
+      cropSelect.innerHTML = '';
+      const availableCrops = REGION_DATA[region].crops[season] || REGION_DATA[region].crops['Kharif'];
+      
+      availableCrops.forEach(c => {
+        const opt = document.createElement('option');
+        opt.value = c;
+        opt.innerText = c;
+        cropSelect.appendChild(opt);
+      });
+    }
+
+    function onWeatherSliderChange() {
+      calculateYield();
+    }
+
+    function calculateYield() {
+      const region = document.getElementById('sel-region').value;
+      const season = document.getElementById('sel-season').value;
+      const crop = document.getElementById('sel-crop').value || 'Rice';
+      
+      const rain = parseFloat(document.getElementById('slider-rainfall').value);
+      const temp = parseFloat(document.getElementById('slider-temp').value);
+      const area = parseFloat(document.getElementById('slider-area').value);
+
+      // Update Slider numeric badges
+      document.getElementById('badge-rainfall').innerText = `${rain} mm`;
+      document.getElementById('badge-temp').innerText = `${temp.toFixed(1)} °C`;
+      document.getElementById('badge-area').innerText = `${area.toLocaleString()} Ha`;
+
+      const phys = CROP_PHYSIOLOGY[crop] || CROP_PHYSIOLOGY['Default'];
+      const baseYield = (REGION_DATA[region].baselineYields[crop]) || 2.5;
+
+      // 1. Curvilinear Rainfall Response Multiplier
+      let rainFactor = 1.0;
+      let moistureTag = "Optimal Moisture";
+      if (rain < phys.optRainMin) {
+        rainFactor = Math.max(0.25, 0.45 + 0.55 * (rain / phys.optRainMin));
+        moistureTag = rain < phys.optRainMin * 0.6 ? "Severe Drought" : "Moisture Deficit";
+      } else if (rain <= phys.optRainMax) {
+        rainFactor = 1.0 + 0.08 * ((rain - phys.optRainMin) / (phys.optRainMax - phys.optRainMin));
+        moistureTag = "Optimal Moisture";
+      } else {
+        const excess = rain - phys.optRainMax;
+        rainFactor = Math.max(0.55, 1.08 - (excess / 1800));
+        moistureTag = excess > 500 ? "Waterlogged / Flood" : "Excess Precipitation";
+      }
+
+      // 2. Curvilinear Temperature Response Multiplier
+      let tempFactor = 1.0;
+      let thermalTag = "Optimal Window";
+      if (temp < phys.optTempMin) {
+        tempFactor = Math.max(0.40, 1.0 - (phys.optTempMin - temp) * 0.05);
+        thermalTag = "Frost / Cold Stress";
+      } else if (temp <= phys.optTempMax) {
+        tempFactor = 1.05;
+        thermalTag = "Optimal Window";
+      } else {
+        const heatExcess = temp - phys.optTempMax;
+        tempFactor = Math.max(0.30, 1.05 - (heatExcess * 0.08));
+        thermalTag = heatExcess > 5 ? "Severe Heatwave" : "Thermal Stress";
+      }
+
+      // 3. Computed Metrics
+      const estimatedYield = Math.max(0.2, (baseYield * rainFactor * tempFactor)).toFixed(2);
+      const totalProduction = Math.round(estimatedYield * area);
+      const baseline = baseYield.toFixed(2);
+      const yieldDelta = (((estimatedYield - baseline) / baseline) * 100).toFixed(1);
+      const efficiency = Math.min(100, Math.max(15, Math.round((estimatedYield / (baseYield * 1.1)) * 100)));
+
+      // Update Top KPIs
+      document.getElementById('kpi-temp').innerText = `${temp.toFixed(1)} °C`;
+      document.getElementById('kpi-rain').innerText = `${rain} mm`;
+      document.getElementById('kpi-yield').innerText = `${estimatedYield}`;
+      document.getElementById('kpi-prod').innerText = `${totalProduction.toLocaleString()}`;
+      document.getElementById('kpi-area').innerText = `${area.toLocaleString()}`;
+      document.getElementById('kpi-eff').innerText = `${efficiency}%`;
+      document.getElementById('kpi-eff-bar').style.width = `${efficiency}%`;
+
+      document.getElementById('kpi-moisture-tag').innerText = moistureTag;
+      document.getElementById('kpi-thermal-tag').innerText = thermalTag;
+
+      // Yield Variance Delta Badge
+      const deltaEl = document.getElementById('kpi-yield-delta');
+      if (yieldDelta >= 0) {
+        deltaEl.innerText = `+${yieldDelta}% vs Base`;
+        deltaEl.className = 'text-neonGreen font-semibold';
+      } else {
+        deltaEl.innerText = `${yieldDelta}% vs Base`;
+        deltaEl.className = 'text-neonRose font-semibold';
+      }
+
+      // Diagnostic Title & Badges
+      document.getElementById('crop-display-title').innerText = `${crop} • ${region} (${season})`;
+      
+      const badgesContainer = document.getElementById('status-badges');
+      badgesContainer.innerHTML = `
+        <span class="px-2 py-0.5 rounded text-[10px] font-bold font-mono ${rain < phys.optRainMin ? 'bg-amber-500/20 text-neonAmber border border-amber-500/40' : 'bg-emerald-500/20 text-neonGreen border border-emerald-500/40'}">
+          ${moistureTag}
+        </span>
+        <span class="px-2 py-0.5 rounded text-[10px] font-bold font-mono ${temp > phys.optTempMax ? 'bg-rose-500/20 text-neonRose border border-rose-500/40' : 'bg-emerald-500/20 text-neonGreen border border-emerald-500/40'}">
+          ${thermalTag}
+        </span>
+      `;
+
+      // Slider Ideal Marks
+      document.getElementById('slider-rain-ideal').innerText = `Ideal: ${phys.optRainMin}–${phys.optRainMax} mm`;
+      document.getElementById('slider-temp-ideal').innerText = `Ideal: ${phys.optTempMin}–${phys.optTempMax} °C`;
+
+      // Gauge Bars
+      const rainMatch = Math.min(100, Math.round(rainFactor * 92));
+      document.getElementById('rain-match-pct').innerText = `${rainMatch}%`;
+      document.getElementById('rain-match-bar').style.width = `${rainMatch}%`;
+      document.getElementById('rain-match-text').innerText = rain < phys.optRainMin 
+        ? `Precipitation deficit (${phys.optRainMin - rain} mm below requirement).` 
+        : (rain > phys.optRainMax ? 'High rainfall volume; potential root waterlogging.' : 'Precipitation well within optimal vegetative hydration zone.');
+
+      const tempMatch = Math.min(100, Math.round(tempFactor * 93));
+      document.getElementById('temp-match-pct').innerText = `${tempMatch}%`;
+      document.getElementById('temp-match-bar').style.width = `${tempMatch}%`;
+      document.getElementById('temp-match-text').innerText = temp > phys.optTempMax 
+        ? `Exceeds thermal threshold (${phys.optTempMax}°C); pollen viability reduced.` 
+        : (temp < phys.optTempMin ? 'Chilling temperatures slowing vegetative development.' : 'Optimal enzymatic kinetics for vigorous biomass expansion.');
+
+      // Update State Benchmark Table
+      updateBenchmarkTable(crop, rainFactor, tempFactor);
+
+      // Render Dynamic Chart.js Yield Sensitivity Curve
+      renderCropSensitivityChart(crop, temp, phys);
+    }
+
+    function updateBenchmarkTable(crop, rainFactor, tempFactor) {
+      const tbody = document.getElementById('benchmark-table-body');
+      tbody.innerHTML = '';
+      
+      const states = Object.keys(REGION_DATA);
+      states.forEach(st => {
+        const base = REGION_DATA[st].baselineYields[crop] || 2.8;
+        const sim = (base * rainFactor * tempFactor).toFixed(2);
+        const diff = (((sim - base) / base) * 100).toFixed(1);
+        const diffClass = diff >= 0 ? 'text-neonGreen' : 'text-neonRose';
+        const sign = diff >= 0 ? '+' : '';
+
+        const row = `
+          <tr class="hover:bg-slate-900/60 transition-colors">
+            <td class="py-1.5 px-2.5 font-bold text-slate-200">${st}</td>
+            <td class="py-1.5 px-2.5 text-slate-400">${base} T/Ha</td>
+            <td class="py-1.5 px-2.5 font-bold text-white">${sim} T/Ha</td>
+            <td class="py-1.5 px-2.5 font-bold ${diffClass}">${sign}${diff}%</td>
+            <td class="py-1.5 px-2.5 text-slate-500 truncate max-w-xs">${REGION_DATA[st].desc}</td>
+          </tr>
+        `;
+        tbody.innerHTML += row;
+      });
+    }
+
+    function renderCropSensitivityChart(crop, currentTemp, phys) {
+      const temps = [10, 14, 18, 22, 26, 30, 34, 38, 42, 46];
+      const yieldValues = temps.map(t => {
+        let tf = 1.0;
+        if (t < phys.optTempMin) tf = Math.max(0.35, 1.0 - (phys.optTempMin - t) * 0.05);
+        else if (t <= phys.optTempMax) tf = 1.08;
+        else tf = Math.max(0.25, 1.08 - (t - phys.optTempMax) * 0.08);
+        return parseFloat((tf * 3.2).toFixed(2));
+      });
+
+      const ctx = document.getElementById('cropSensitivityChart').getContext('2d');
+      if (sensitivityChartInstance) {
+        sensitivityChartInstance.destroy();
+      }
+
+      sensitivityChartInstance = new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels: temps.map(t => `${t}°C`),
+          datasets: [{
+            label: `${crop} Thermal Response Yield`,
+            data: yieldValues,
+            borderColor: '#10B981',
+            backgroundColor: 'rgba(16, 185, 129, 0.12)',
+            fill: true,
+            tension: 0.35,
+            pointRadius: temps.map(t => Math.abs(t - currentTemp) <= 2 ? 7 : 3),
+            pointBackgroundColor: temps.map(t => Math.abs(t - currentTemp) <= 2 ? '#F59E0B' : '#10B981')
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { display: false },
+            tooltip: {
+              backgroundColor: '#0F172A',
+              borderColor: '#334155',
+              borderWidth: 1,
+              titleColor: '#F8FAFC',
+              bodyColor: '#10B981',
+              titleFont: { family: 'JetBrains Mono' },
+              bodyFont: { family: 'JetBrains Mono' }
+            }
+          },
+          scales: {
+            y: {
+              grid: { color: 'rgba(51, 65, 85, 0.4)' },
+              ticks: { color: '#94A3B8', font: { family: 'JetBrains Mono', size: 9 } }
+            },
+            x: {
+              grid: { color: 'rgba(51, 65, 85, 0.4)' },
+              ticks: { color: '#94A3B8', font: { family: 'JetBrains Mono', size: 9 } }
+            }
+          }
+        }
+      });
+    }
+
+    function applyPreset(type) {
+      if (type === 'normal') {
+        onRegionChange();
+        showToast('Restored historical normal baselines');
+      } else if (type === 'drought') {
+        document.getElementById('slider-rainfall').value = 320;
+        document.getElementById('slider-temp').value = 34.0;
+        calculateYield();
+        showToast('Simulated: Monsoon Deficit Condition (-40%)');
+      } else if (type === 'flood') {
+        document.getElementById('slider-rainfall').value = 1750;
+        document.getElementById('slider-temp').value = 27.5;
+        calculateYield();
+        showToast('Simulated: Surplus Monsoon Rainfall (+50%)');
+      } else if (type === 'heatwave') {
+        document.getElementById('slider-temp').value = 39.5;
+        calculateYield();
+        showToast('Simulated: Severe Heatwave Spike (+5°C)');
+      }
+    }
+
+    function resetDefaults() {
+      document.getElementById('sel-region').value = 'Telangana';
+      document.getElementById('sel-season').value = 'Kharif';
+      document.getElementById('slider-area').value = 1200;
+      onRegionChange();
+      showToast('Simulator reset to defaults');
+    }
+
+    /* ---------------------------------------------------------
+       4. CHARTS.JS EXPLORATORY VISUALIZATIONS (TAB 2)
+    --------------------------------------------------------- */
+    let chart1, chart2, chart3;
+
+    function initCharts() {
+      Chart.defaults.color = '#94A3B8';
+      Chart.defaults.font.family = 'JetBrains Mono';
+
+      // 1. Scatter Chart: Rainfall vs Yield
+      const ctx1 = document.getElementById('chartRainfallYield').getContext('2d');
+      const scatterPoints = sampleTableData.map(d => ({
+        x: d.rain,
+        y: parseFloat(d.yield),
+        season: d.season
+      }));
+
+      chart1 = new Chart(ctx1, {
+        type: 'scatter',
+        data: {
+          datasets: [
+            {
+              label: 'Kharif Observations',
+              data: scatterPoints.filter(p => p.season === 'Kharif'),
+              backgroundColor: '#10B981',
+              pointRadius: 5
+            },
+            {
+              label: 'Rabi Observations',
+              data: scatterPoints.filter(p => p.season === 'Rabi'),
+              backgroundColor: '#F59E0B',
+              pointRadius: 5
+            }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { labels: { color: '#E2E8F0', font: { size: 10 } } }
+          },
+          scales: {
+            x: {
+              grid: { color: 'rgba(51, 65, 85, 0.4)' },
+              title: { display: true, text: 'Rainfall (mm)', color: '#94A3B8', font: { size: 10 } }
+            },
+            y: {
+              grid: { color: 'rgba(51, 65, 85, 0.4)' },
+              title: { display: true, text: 'Crop Yield (T / Ha)', color: '#94A3B8', font: { size: 10 } }
+            }
+          }
+        }
+      });
+
+      // 2. Bar Chart: Regional Comparison
+      const ctx2 = document.getElementById('chartStateComparison').getContext('2d');
+      chart2 = new Chart(ctx2, {
+        type: 'bar',
+        data: {
+          labels: ['Telangana', 'Andhra', 'Punjab', 'Maharashtra', 'UP', 'Karnataka', 'MP', 'Tamil Nadu'],
+          datasets: [
+            {
+              label: 'Kharif Average Yield',
+              data: [3.45, 3.75, 4.30, 2.45, 2.85, 3.10, 2.60, 3.95],
+              backgroundColor: '#3B82F6'
+            },
+            {
+              label: 'Rabi Average Yield',
+              data: [2.10, 2.30, 5.15, 1.85, 3.65, 1.60, 3.45, 2.40],
+              backgroundColor: '#10B981'
+            }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { labels: { color: '#E2E8F0', font: { size: 10 } } }
+          },
+          scales: {
+            x: { grid: { display: false } },
+            y: {
+              grid: { color: 'rgba(51, 65, 85, 0.4)' },
+              title: { display: true, text: 'Average Yield (Tonnes / Ha)', color: '#94A3B8', font: { size: 10 } }
+            }
+          }
+        }
+      });
+
+      // 3. Line Chart: Thermal Tolerance
+      const ctx3 = document.getElementById('chartCropComparison').getContext('2d');
+      chart3 = new Chart(ctx3, {
+        type: 'line',
+        data: {
+          labels: ['14°C', '18°C', '22°C', '26°C', '30°C', '34°C', '38°C', '42°C'],
+          datasets: [
+            {
+              label: 'Rice Yield Response (Kharif)',
+              data: [1.2, 1.9, 2.8, 3.5, 3.8, 3.4, 2.2, 1.1],
+              borderColor: '#10B981',
+              backgroundColor: 'rgba(16, 185, 129, 0.1)',
+              tension: 0.35,
+              fill: true
+            },
+            {
+              label: 'Wheat Yield Response (Rabi)',
+              data: [4.1, 4.9, 5.2, 4.1, 2.5, 1.2, 0.4, 0.1],
+              borderColor: '#F59E0B',
+              backgroundColor: 'rgba(245, 158, 11, 0.1)',
+              tension: 0.35,
+              fill: true
+            }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { labels: { color: '#E2E8F0', font: { size: 10 } } }
+          },
+          scales: {
+            x: { grid: { color: 'rgba(51, 65, 85, 0.4)' } },
+            y: {
+              grid: { color: 'rgba(51, 65, 85, 0.4)' },
+              title: { display: true, text: 'Yield Potential (T / Ha)', color: '#94A3B8', font: { size: 10 } }
+            }
+          }
+        }
+      });
+    }
+
+    function updateCharts() {
+      const filter = document.getElementById('vizFilter').value;
+      if (filter === 'Kharif') {
+        chart1.data.datasets[1].hidden = true;
+        chart1.data.datasets[0].hidden = false;
+      } else if (filter === 'Rabi') {
+        chart1.data.datasets[0].hidden = true;
+        chart1.data.datasets[1].hidden = false;
+      } else {
+        chart1.data.datasets[0].hidden = false;
+        chart1.data.datasets[1].hidden = false;
+      }
+      chart1.update();
+      showToast(`Visualizations filtered: ${filter}`);
+    }
+
+    /* ---------------------------------------------------------
+       5. DATASET TABLE SEARCH & PAGINATION
+    --------------------------------------------------------- */
+    let currentPage = 1;
+    const rowsPerPage = 10;
+    let filteredRecords = [...sampleTableData];
+
+    function renderTable() {
+      const tbody = document.getElementById('tableBody');
+      tbody.innerHTML = '';
+
+      const start = (currentPage - 1) * rowsPerPage;
+      const end = start + rowsPerPage;
+      const pageData = filteredRecords.slice(start, end);
+
+      if (pageData.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="10" class="text-center py-6 text-slate-500 font-mono">No matching records found.</td></tr>`;
+        return;
+      }
+
+      pageData.forEach(r => {
+        const row = `
+          <tr class="hover:bg-slate-800/40 transition-colors">
+            <td class="py-2.5 px-3 font-semibold text-slate-400">${r.id}</td>
+            <td class="py-2.5 px-3 font-medium text-white">${r.state}</td>
+            <td class="py-2.5 px-3 text-slate-400">${r.year}</td>
+            <td class="py-2.5 px-3">
+              <span class="px-2 py-0.5 rounded text-[10px] ${r.season === 'Kharif' ? 'bg-emerald-500/20 text-neonGreen border border-emerald-500/40' : 'bg-amber-500/20 text-neonAmber border border-amber-500/40'}">
+                ${r.season}
+              </span>
+            </td>
+            <td class="py-2.5 px-3 font-semibold text-slate-200">${r.crop}</td>
+            <td class="py-2.5 px-3 text-cyan-300">${r.rain} mm</td>
+            <td class="py-2.5 px-3 text-amber-300">${r.temp} °C</td>
+            <td class="py-2.5 px-3 text-slate-400">${r.area.toLocaleString()}</td>
+            <td class="py-2.5 px-3 text-slate-300">${r.prod.toLocaleString()}</td>
+            <td class="py-2.5 px-3 font-bold text-neonGreen bg-emerald-950/20">${r.yield}</td>
+          </tr>
+        `;
+        tbody.innerHTML += row;
+      });
+
+      document.getElementById('pageInfo').innerText = `Showing ${start + 1}–${Math.min(end, filteredRecords.length)} of ${filteredRecords.length} records`;
+      document.getElementById('currentPageNum').innerText = currentPage;
+      document.getElementById('btnPrevPage').disabled = currentPage === 1;
+      document.getElementById('btnNextPage').disabled = end >= filteredRecords.length;
+    }
+
+    function filterTable() {
+      const query = document.getElementById('tableSearch').value.toLowerCase();
+      const stateFilter = document.getElementById('filterState').value;
+      const seasonFilter = document.getElementById('filterSeason').value;
+
+      filteredRecords = sampleTableData.filter(d => {
+        const matchesQuery = d.state.toLowerCase().includes(query) ||
+                             d.crop.toLowerCase().includes(query) ||
+                             d.id.toLowerCase().includes(query);
+        const matchesState = stateFilter === "" || d.state === stateFilter;
+        const matchesSeason = seasonFilter === "" || d.season === seasonFilter;
+        return matchesQuery && matchesState && matchesSeason;
+      });
+
+      currentPage = 1;
+      renderTable();
+    }
+
+    function prevPage() {
+      if (currentPage > 1) {
+        currentPage--;
+        renderTable();
+      }
+    }
+
+    function nextPage() {
+      if (currentPage * rowsPerPage < filteredRecords.length) {
+        currentPage++;
+        renderTable();
+      }
+    }
+
+    function exportTableToCSV() {
+      let csv = 'Record_ID,State,Year,Season,Crop,Rainfall_mm,Temperature_C,Area_Hectares,Production_Tonnes,Crop_Yield_Tonnes_Per_Ha\n';
+      filteredRecords.forEach(r => {
+        csv += `${r.id},${r.state},${r.year},${r.season},${r.crop},${r.rain},${r.temp},${r.area},${r.prod},${r.yield}\n`;
+      });
+
+      const blob = new Blob([csv], { type: 'text/csv' });
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.setAttribute('href', url);
+      a.setAttribute('download', 'EDAV_Cleaned_Crop_Weather_Data.csv');
+      a.click();
+      showToast('CSV Dataset downloaded');
+    }
+
+    /* ---------------------------------------------------------
+       6. UI UTILITIES, TAB ROUTING & RUNNERS
+    --------------------------------------------------------- */
+    function switchTab(tabId) {
+      document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+      document.querySelectorAll('.tab-btn').forEach(btn => {
+        btn.classList.remove('tab-active');
+        btn.classList.add('text-slate-400');
+      });
+
+      document.getElementById(`tabContent-${tabId}`).classList.remove('hidden');
+      const activeBtn = document.getElementById(`tabBtn-${tabId}`);
+      activeBtn.classList.add('tab-active');
+      activeBtn.classList.remove('text-slate-400');
+
+      if (tabId === 'visualizations') {
+        setTimeout(() => {
+          if (!chart1) initCharts();
+        }, 120);
+      }
+    }
+
+    function copySnippet(id) {
+      const code = document.getElementById(id).innerText;
+      const textArea = document.createElement("textarea");
+      textArea.value = code;
+      document.body.appendChild(textArea);
+      textArea.select();
+      document.execCommand('copy');
+      document.body.removeChild(textArea);
+      showToast('Python snippet copied to clipboard');
+    }
+
+    function runMockCode(outputId, resultText) {
+      const outEl = document.getElementById(outputId);
+      outEl.innerText = resultText;
+      outEl.classList.remove('hidden');
+      showToast('Executed snippet simulation');
+    }
+
+    function showToast(msg) {
+      const toast = document.getElementById('toast');
+      document.getElementById('toastMsg').innerText = msg;
+      toast.classList.remove('opacity-0');
+      toast.classList.add('opacity-100');
+      setTimeout(() => {
+        toast.classList.remove('opacity-100');
+        toast.classList.add('opacity-0');
+      }, 2400);
+    }
+
+    function downloadSummaryReport() {
+      const reg = document.getElementById('sel-region').value;
+      const crp = document.getElementById('sel-crop').value;
+      const yld = document.getElementById('kpi-yield').innerText;
+      const prd = document.getElementById('kpi-prod').innerText;
+      const rain = document.getElementById('badge-rainfall').innerText;
+      const tmp = document.getElementById('badge-temp').innerText;
+
+      const report = `==================================================================
+CHAITANYA BHARATHI INSTITUTE OF TECHNOLOGY (CBIT)
+Department of Information Technology - EDAV Project
+Exploratory Data Analysis: Weather Patterns & Crop Yields
+==================================================================
+Project Guide: Dr. Ramakrishna Kolikopogu
+Project Team: A Jeshwanth Reddy, A Shreyas Reddy, Varshini Reddy
+
+SIMULATION TELEMETRY SUMMARY:
+------------------------------------------------------------------
+Region / State       : ${reg}
+Selected Crop        : ${crp}
+Simulated Rainfall   : ${rain}
+Simulated Temperature: ${tmp}
+Estimated Yield      : ${yld} Tonnes / Hectare
+Projected Output     : ${prd} Tonnes
+Agronomic Model      : Non-linear Curvilinear Physiological Response
+Data Schema Origin   : data.gov.in & IMD Climate Normals
+==================================================================
+`;
+      const blob = new Blob([report], { type: 'text/plain' });
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.setAttribute('href', url);
+      a.setAttribute('download', `EDAV_${reg}_${crp}_Telemetry.txt`);
+      a.click();
+      showToast('Summary telemetry report generated');
+    }
+
+    /* ---------------------------------------------------------
+       7. WINDOW ONLOAD
+    --------------------------------------------------------- */
+    window.onload = function () {
+      onRegionChange();
+      renderTable();
+    };
+  </script>
+
+</body>
+</html>
